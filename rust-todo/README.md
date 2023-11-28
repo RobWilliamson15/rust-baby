@@ -28,9 +28,9 @@ Ensure you have Rust installed on your system. If not, you can install it from [
 ### Usage 
 
 Run the application using Cargo:
-    ```sh
-    cargo run -- [COMMANDS]
-
+```sh
+cargo run -- [COMMANDS]
+```
 Commands:
 - Add a new task:
     ```sh
