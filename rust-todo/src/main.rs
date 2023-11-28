@@ -1,3 +1,4 @@
+use clap::{App, Arg, SubCommand};
 use std::fs::File;
 use std::io::{self, Write, Read};
 use serde::{Serialize, Deserialize};
@@ -66,15 +67,49 @@ fn load_tasks() -> io::Result<Vec<Task>> {
 }
 
 fn main() {
+    let matches = App::new("Rust Todo List")
+        .version("1.0")
+        .author("Robert Williamson")
+        .about("Manages a to-do list")
+        .subcommand(SubCommand::with_name("add")
+            .about("Adds a task to the list")
+            .arg(Arg::with_name("DESCRIPTION")
+                .help("The description of the task")
+                .required(true)
+                .index(1)))
+        .subcommand(SubCommand::with_name("coimplete")
+            .about("Marks a task as completed")
+            .arg(Arg::with_name("INDEX")
+                .help("The index of the task to complete")
+                .required(true)
+                .index(1)))
+        .get_matches();
+
     let mut tasks = match load_tasks() {
         Ok(loaded_tasks) => loaded_tasks,
         Err(_) => Vec::new(), //Starts with an empty vector if error
     };
     
-    add_task(&mut tasks, "Learn Rust".to_string());
-    add_task(&mut tasks, "Build a Rust project".to_string());
-    complete_task(&mut tasks, 0);
-    list_tasks(&tasks);
+    if let Some((command, sub_matches)) = matches.subcommand(){
+        match command {
+            "add" => {
+                if let Some(description) = sub_matches.value_of("DESCRIPTION"){
+                    add_task(&mut tasks, description.to_string());
+                }                    
+            },
+            "complete" => {
+                if let Some(index_str) = sub_matches.value_of("INDEX") {
+                    let index = index_str.parse::<usize>()
+                        .expect("Please input a valid index");
+                    complete_task(&mut tasks, index);
+                }
+            },
+            _ => list_tasks(&tasks),
+        }
+    } else {
+        list_tasks(&tasks);
+    }
+    
     if let Err(e) = save_tasks(&tasks) {
         println!("Error saving tasks: {}", e);
     }
