@@ -22,8 +22,8 @@ fn index() -> Template {
     last_name: String
   }
   let context = Context {
-    first_name: String::from("Jane"),
-    last_name: String::from("Doe")
+    first_name: String::from("Rob"),
+    last_name: String::from("Williamson")
   };
   Template::render("home", context)
 }
